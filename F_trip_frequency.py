@@ -1,24 +1,31 @@
 import pandas as pd
 import os
 import glob
-pd.options.mode.chained_assignment = None  # default='warn'
+import random
+import numpy as np
+#pd.options.mode.chained_assignment = None  # default='warn'
 
 
 
-folder = 'D:\\b-riders\Data\\np_no_duplicates\*.csv'
+folder = 'D:\\b-riders\Data\joinedtracks\*.csv'
 
-exit = pd.DataFrame(columns=['person', 'count'])
+exit = pd.DataFrame()
 
 #iterate over all files and calculate the trip frequency per person
 for file in glob.glob(folder):
-	df1 = pd.read_csv(file, sep = ';', decimal=',')
+	#Read csv, extract neccesary columns and drop duplicate rows, to obtain unique tracks
+	df1 = pd.read_csv(file, sep = ',')
 	df2 = df1[['person', 'track']]
-	df2['count'] = df2.groupby('track')['person'].nunique()
-	df3 = df2[df2['count'].notnull()]
-	df3 = df2.drop_duplicates(subset = ['person', 'count'])
-	#df3=df2.ix[df2['count'] < 0 ]
-	del df3['track']
-	exit = exit.append(df3)
+	df3 = df2.drop_duplicates(subset = ['track'])
+	#Add column with no values for indexing
+	df3['count'] = np.nan
+	#Count rows per file and drop duplicates
+	df3['count'] = len(df3.index)
+	df4 = df3.drop_duplicates(subset = ['person'])
+	#Delete columns
+	del df4['track']
+	#append to file
+	exit = exit.append(df4)
 	del df1
 	del df2
 	del df3
