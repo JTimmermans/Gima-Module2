@@ -39,7 +39,7 @@ print(time.head())
 
 
 folder = 'D:\\b-riders\Data\\np_no_duplicates\*.csv'
-result = pd.DataFrame(columns=['person','tot_length_night', 'night'])
+result = pd.DataFrame(columns=['person','length_night'])
 
 
 #read over all csv files and determine if a trip started during dark hours
@@ -63,16 +63,20 @@ for file in glob.glob(folder):
 	merge = pd.merge(joinTo, joinFrom, left_on = 'day', right_on = 'day')
 	empty = pd.DataFrame()
 
-	#create a colun that is true if during the day
+	#set merge to a value
+	merge['during_day'] = 0
+
+	#create a colun that is true if night
 	current_time = merge['datetime2']
 	sunrise = merge['datetime_sunrise']
 	sunset = merge['datetime_sunset']
 	merge['during_day'] = (sunset >= current_time) & (current_time >= sunrise)
+	merge['night'] = merge['during_day'] != True
 
 	#select all day columns and calculate total meters during the day
-	df3 = merge[(merge.during_day == True )]
-	df3['length_during_day'] = df3['lengte'].sum()
-	df4 = df3[['length_during_day', 'person']]
+	df3 = merge[(merge.night == True )]
+	df3['length_night'] = df3['lengte'].sum()
+	df4 = df3[['length_night', 'person']]
 	df4 = df4.drop_duplicates(subset = ['person'])
 	df4['person'] = df4['person'].astype(str)
 
