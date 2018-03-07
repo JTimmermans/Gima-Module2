@@ -49,12 +49,11 @@ for file in glob.glob(folder):
 	joinTo = df2
 	joinFrom = time
 	merge = pd.merge(joinTo, joinFrom, left_on = 'day', right_on = 'day')
-	empty = pd.DataFrame()
 
 	#Set merge to a value
 	merge['during_day'] = 0
 
-	#Create a column that is true if track segment whas during the night
+	#Create a column that is true if track segment was during the night
 	current_time = merge['datetime2']
 	sunrise = merge['datetime_sunrise']
 	sunset = merge['datetime_sunset']
