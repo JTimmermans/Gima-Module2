@@ -15,8 +15,8 @@ time_df = pd.read_csv(time_file, sep=';')
 time_df['sunrise'] = time_df['y'].map(str)+'-'+time_df['m'].map(str)+'-'+time_df['d'].map(str)+' '+time_df['op'].map(str)
 time_df['sunset'] = time_df['y'].map(str)+'-'+time_df['m'].map(str)+'-'+time_df['d'].map(str)+' '+time_df['onder'].map(str)
 time_df['day_raw'] = time_df['y'].map(str)+'-'+time_df['m'].map(str)+'-'+time_df['d'].map(str)
-#Convert sunrise and sunset columns to actual datetime properties
 
+#Convert sunrise and sunset columns to actual datetime properties
 time_df['datetime_sunrise'] = pd.to_datetime(time_df['sunrise'])
 time_df['datetime_sunset'] = pd.to_datetime(time_df['sunset'])
 time_df['day'] = pd.to_datetime(time_df['day_raw'])
@@ -30,45 +30,45 @@ print(time.head())
 folder = 'D:\\b-riders\Data\\np_no_duplicates\*.csv'
 result = pd.DataFrame(columns=['person','length_night' ])
 
-#read over all csv files and determine if a trip started during dark hours
+#Read over all csv files and determine if a trip started during dark hours
 for file in glob.glob(folder):
 	#Load csv's and select appropriate columns
 	df1 = pd.read_csv(file, sep = ';', decimal = ',')
 	df2 = df1[['lengte', 'datetime', 'person', 'track']]
 
-	#set datetime column to datetime2
+	#Set datetime column to datetime2
 	df2['datetime2'] = pd.to_datetime(df2['datetime'])
 
-	#select the day date, drop hours and minutes
+	#Select the day date, drop hours and minutes
 	df2['day_raw']=df2['datetime2'].dt.date
 	df2['day']=pd.to_datetime(df2['day_raw'])
 	del df2['day_raw']
 	del df2['datetime']
 
-	#merge tracks on date(day)
+	#Merge tracks on date day to obtain sunrise and sunset times for the track segment
 	joinTo = df2
 	joinFrom = time
 	merge = pd.merge(joinTo, joinFrom, left_on = 'day', right_on = 'day')
 	empty = pd.DataFrame()
 
-	#set merge to a value
+	#Set merge to a value
 	merge['during_day'] = 0
 
-	#create a colun that is true if night
+	#Create a column that is true if track segment whas during the night
 	current_time = merge['datetime2']
 	sunrise = merge['datetime_sunrise']
 	sunset = merge['datetime_sunset']
 	merge['during_day'] = (sunset >= current_time) & (current_time >= sunrise)
 	merge['night'] = merge['during_day'] != True
 
-	#select all day columns and calculate total meters during the day
+	#Select all day columns and calculate total meters during the day
 	df3 = merge[(merge.night == True )]
 	df3['length_night'] = df3['lengte'].sum()
 	df4 = df3[['length_night', 'person']]
 	df4 = df4.drop_duplicates(subset = ['person'])
 	df4['person'] = df4['person'].astype(str)
 
-	#append a single line to the person file
+	#Append a single line to the person file
 	result= result.append(df4)
 	
 #Write results to a .csv	
