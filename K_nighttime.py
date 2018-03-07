@@ -4,19 +4,8 @@ from datetime import datetime
 from dateutil.parser import parse
 import numpy as np
 
-pd.options.mode.chained_assignment = None  # default='warn'
-
-'''
-#define function which defines if set times are within range
-def isNowInTimePeriod(startTime, endTime, nowTime):
-	if startTime < endTime:
-		return (nowTime >= startTime) & (nowTime <= endTime)
-	else: #Over midnight
-		return (nowTime >= startTime) | (nowTime <= endTime)
-'''
-
-
-
+#Hide warnings, after checking the date the warning to use .loc did not affect the data result.
+pd.options.mode.chained_assignment = None  # default='warning
 
 #Load unstructured file from KNMI containing sunrise and sunset dates per calendar day.
 time_file = 'C:\Users\Joris\Google Drive\Gima\Module_2\Case_Study\Data\sun_rise_set_january_2014.csv'
@@ -37,10 +26,9 @@ time = time_df[['datetime_sunset', 'datetime_sunrise', 'day']]
 del time_df
 print(time.head())
 
-
+#Set folder and create an empty dataframe to store the results
 folder = 'D:\\b-riders\Data\\np_no_duplicates\*.csv'
-result = pd.DataFrame(columns=['person','length_night'])
-
+result = pd.DataFrame(columns=['person','length_night' ])
 
 #read over all csv files and determine if a trip started during dark hours
 for file in glob.glob(folder):
@@ -80,32 +68,8 @@ for file in glob.glob(folder):
 	df4 = df4.drop_duplicates(subset = ['person'])
 	df4['person'] = df4['person'].astype(str)
 
+	#append a single line to the person file
 	result= result.append(df4)
-	print('x')
-'''
-	#For each row determine if time is within dark hours, if so, df2['night']=true.
-	for index, row in df2.iterrows():
-		current_time = merge['datetime2']
-		sunrise = merge['datetime_sunrise']
-		sunset = merge['datetime_sunset']
-		merge['night'] = (sunset <= current_time) & (current_time<= sunrise)
-		empty = empty.append(merge)
-'''
-
 	
-test = result.to_csv('D:\\b-riders\Data\\night.csv', sep = ';', decimal = ',', index = False)
-
-'''
-	df3 = df2[(df2.wegdeksrt == 'asfalt/beton' )]
-	df3['length_asphalt'] = df3['lengte'].sum()
-	df4 = df3[['length_asphalt', 'person']]
-	df4 = df4.drop_duplicates(subset = ['person'])
-	df4['person'] = df4['person'].astype(str)
-	exit = exit.append(df4)
-
-print exit.head()
-
-exit.to_csv('D:\\b-riders\Data\\length_asphalt.csv', sep = ';', decimal = ',', index=False)
-
-result = result.to_csv('D:\\b-riders\Data\\testennnn.csv', sep = ';', decimal = ',', index = False)
-'''
+#Write results to a .csv	
+result.to_csv('D:\\b-riders\Data\\night.csv', sep = ';', decimal = ',', index = False)
